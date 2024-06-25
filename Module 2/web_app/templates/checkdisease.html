@@ -1,0 +1,233 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Predict Disease</title>
+  
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+
+    <style>
+    
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+
+          .prediction {
+              animation: fade-in 1s ease-in-out; 
+          }
+
+          .selected-option {
+            background-color: #f0f0f0; /* Change this to your desired highlight color */
+        }
+      
+    </style>
+
+  
+  </head>
+
+  <body style="background-color: #cccccc;">
+   
+
+    <section class="alternate page-heading">
+      <div class="container">
+        <p class="lead bold d-inline bg-info p-3 text-light rounded">bc190405337</p>
+        <p class="lead bold d-inline bg-info p-3 text-light rounded">Abdullah Zaki</p>
+    </section>
+    <hr>
+    
+    <div class="container">
+      <img class="img-fluid " src="{% static 'images/dwn1.jpg' %}" alt="bg image">
+    </div>
+
+
+    <div class="container border rounded p-5 mt-5 bg-secondary text-light shadow mb-4">
+      <h1 class="mb-5 bg-primary text-center p-3 rounded shadow">Predictive Insights for Better Health☺</h1>
+      <label class="col-2 col-form-label" for="animals">Select Symptoms</label>
+      <form method="POST" action="{% url 'checkdisease' %}" id="form">
+        {% csrf_token %}
+        <div class="form-group row">
+          <div class="col-4">
+            <select class="form-select" name="symptom1" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-4">
+            <select class="form-select " name="symptom2" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-4">
+            <select class="form-select" name="symptom3" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        
+        </div>
+        <div class="form-group row mt-4 mb-4">
+
+          <div class="col-4">
+            <select class="form-select" name="symptom4" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-4">
+            <select class="form-select" name="symptom5" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-4">
+            <select class="form-select" name="symptom6" aria-label="Default select example">
+              <option selected>Select Symptom</option>
+              
+              {% for symptom in symptoms_list %}
+              <option value="{{symptom}}">{{symptom}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+
+        
+        </div>
+ 
+    
+        <button class="btn btn-primary" onclick="hide_show()" type="submit">Submit</button>
+      </form>
+
+
+
+    </div>
+    <div class="container mt-5 mb-5 prediction visually-hidden">
+      <div class="row">
+        <div class="col-md-5 border rounded p-4 shadow bg-info">
+            <h4 class="m-4 predicted_disease">Predicted Disease: <b class="text-danger">Disease Name</b> </h4>
+            <small>Probablity of predicted Disease</small>
+            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar" style="width: 25%">25%</div>
+            </div>
+            <u><h5 class="text-dark  mt-4">Some Precautions for this Disease:</h5></u>
+            <ul class="precautions-list">
+              <li>keep hydrated</li>
+              <li>eat fruits and high fiberous food</li>
+              <li>anti itch medicine</li>
+              <li>wash hands through</li>
+            </ul>
+            
+        </div>
+      </div>
+    </div>
+
+
+    
+
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      function hide_show() {
+        const p_sections = document.getElementsByClassName('prediction');
+        console.log(p_sections);
+
+        for (const p_section of p_sections) {
+            p_section.classList.remove('visually-hidden');
+
+    
+            p_section.scrollIntoView({
+                behavior: 'smooth', 
+                block: 'start', 
+            });
+        }
+    }
+
+      $('#form').on('submit', function(event){
+        event.preventDefault();
+        const FormData = $(this).serialize()
+
+        $.ajax({
+          type:'POST',
+          url:$(this).attr('action'),
+          data: FormData,
+          headers:{
+            'X_CsrfToken' : getCookie('csrftoken')
+          },
+          success: function(data){
+            console.log(data)
+            // Assuming `data` contains the response from your AJAX call with the predicted disease name
+            const predictedDiseaseName = data.predicteddisease; // Replace `predicteddisease` with the key in your JSON response
+            const confidenceScore = data.confidencescore; // Replace `confidencescore` with the key in your JSON response
+            const precautions = data.precautions;
+
+            const predictedDiseaseElement = document.querySelector('.predicted_disease b');
+            const progressBar = document.querySelector('.progress-bar');
+            const precautionsList = document.querySelector('.precautions-list');
+
+            if (predictedDiseaseElement) {
+                predictedDiseaseElement.textContent = predictedDiseaseName;
+            }
+
+            if (progressBar) {
+                const roundedConfidence = Math.round(parseFloat(confidenceScore)); // Convert to float and round the confidence score
+                progressBar.style.width = `${roundedConfidence}%`;
+                progressBar.textContent = `${roundedConfidence}%`;
+                progressBar.setAttribute('aria-valuenow', `${roundedConfidence}`);
+            }
+
+            if (precautionsList && precautions) {
+              precautionsList.innerHTML = ''; // Clear the previous list items
+              precautions.forEach(precaution => {
+                  const listItem = document.createElement('li');
+                  listItem.textContent = precaution;
+                  precautionsList.appendChild(listItem);
+              });
+          }
+
+          },
+          error: function(xhr, textStatus, errorThrown){
+            console.log('errors', errorThrown)
+          }
+
+        });
+      });
+
+      function getCookie(name) {
+        const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return cookieValue ? cookieValue.pop() : '';
+      }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+  </body>
+
+</html>
+
